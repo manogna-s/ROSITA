@@ -14,7 +14,7 @@ from models.clip import CustomCLIP_CLIP
 from utils.data_utils import prepare_ood_test_data, AugMixAugmenter
 from utils.clip_tta_utils import get_classifiers
 
-from methods import rosita, zseval, tpt, tpt_continual, promptalign, promptalign_continual
+from methods import rosita, zseval, tpt, tpt_continual, promptalign, promptalign_continual, tda, rositav2, owttt, tda_aug
 
 from utils.registry import get_method
 
@@ -59,7 +59,7 @@ def get_preprocess_transforms(args):
         transforms.ToTensor(),
         normalize,])
     
-    if 'TPT' in args.tta_method or 'PromptAlign' in args.tta_method:
+    if args.tta_method in ['TPT','PromptAlign', 'TDA_Aug']:
         base_transform = transforms.Compose([
             transforms.Resize(224, interpolation=BICUBIC),
             transforms.CenterCrop(224)])
@@ -69,7 +69,7 @@ def get_preprocess_transforms(args):
         preprocess = AugMixAugmenter(base_transform, preprocess, n_views=args.n_views-1, 
                                                 augmix=False)
 
-    if args.tta_method == 'ROSITA':
+    if args.tta_method in ['ROSITA', 'ROSITAv2', 'OWTTT']:
         base_transform = transforms.Compose([
             transforms.Resize(224, interpolation=BICUBIC),
             transforms.CenterCrop(224)])
@@ -114,7 +114,7 @@ parser.add_argument('--clip_arch', default='ViT-B/16')
 parser.add_argument('--weak_OOD', default='cifar10OOD')
 parser.add_argument('--strong_OOD', default='MNIST') 
 parser.add_argument('--strong_ratio', default=1, type=float)
-parser.add_argument('--dataroot', default="./data", help='path to dataset')
+parser.add_argument('--dataroot', default="/home/manogna/TTA/PromptAlign/data/ood", help='path to dataset')
 parser.add_argument('--batch_size', default=1, type=int)
 parser.add_argument('--n_views', default=64, type=int)
 parser.add_argument('--workers', default=4, type=int)
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     preprocess = get_preprocess_transforms(args)
 
     data_dict, test_set, test_loader = prepare_ood_test_data(args, preprocess)
-
+    
     model = get_model(args, data_dict['ID_classes'])
 
     weak_ood_classifiers = get_classifiers(model)

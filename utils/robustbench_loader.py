@@ -62,8 +62,8 @@ class CustomDatasetFolder(VisionDataset):
         self.transform = transform
         self.target_transform = target_transform
         classes, class_to_idx = self._find_classes(self.root)
-        samples = make_custom_dataset(self.root, 'data/ImageNet-C/imagenet_val_ids_50k.txt',
-                                      'data/ImageNet-C/imagenet_class_to_id_map.json', tesize=tesize)
+        samples = make_custom_dataset(self.root, '/home/manogna/TTA/PromptAlign/data/ood/ImageNet-C/imagenet_val_ids_50k.txt',
+                                      '/home/manogna/TTA/PromptAlign/data/ood/ImageNet-C/imagenet_class_to_id_map.json', tesize=tesize)
         if len(samples) == 0:
             raise (RuntimeError("Found 0 files in subfolders of: " + self.root + "\n"
                                 "Supported extensions are: " + ",".join(extensions)))
