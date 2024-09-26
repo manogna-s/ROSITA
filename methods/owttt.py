@@ -134,11 +134,11 @@ def OWTTT(args, model, data_loader, classifiers):
         W_sel = W_pred * (maxlogit_tta > stats['mu1'])
 
         loss = 0
-        if W_pred[0].item() and maxlogit_tta.item()>stats['mu1']:
+        if W_pred[0].item(): #and maxlogit_tta.item()>stats['mu1']:
             proto_bank['W'][pl].append(image_features_raw.detach())
             proto_bank['W'][pl] = proto_bank['W'][pl][-args.k_p:]
 
-        if S_pred[0].item() and maxlogit_tta.item()<stats['mu0']:
+        if S_pred[0].item(): # and maxlogit_tta.item()<stats['mu0']:
             proto_bank['S'].append(image_features_raw.detach())
             proto_bank['S'] = proto_bank['S'][-queue_length:]
 
@@ -167,7 +167,7 @@ def OWTTT(args, model, data_loader, classifiers):
             strong_logits = image_features @ strong_protos.T
             strong_logit = torch.max(strong_logits,dim=1)[0].unsqueeze(1)
 
-            if W_pred[0].item() and maxlogit_tta.item()>stats['mu1']:
+            if W_pred[0].item(): # and maxlogit_tta.item()>stats['mu1']:
                 # combined_logit = weak_logits
                 # _, pl = combined_logit.max(1)
                 loss += nn.CrossEntropyLoss()(logits[W_sel], pred_tta[W_sel])
@@ -175,7 +175,7 @@ def OWTTT(args, model, data_loader, classifiers):
                     # loss += nn.CrossEntropyLoss()(combined_logit, pl)
 
 
-            if S_pred[0].item() and maxlogit_tta.item()<stats['mu0']:
+            if S_pred[0].item(): # and maxlogit_tta.item()<stats['mu0']:
                 combined_logit = torch.cat([logits, strong_logit], 1)
                 # combined_logit = torch.cat([weak_logits, strong_logit], 1)
                 _, pl = combined_logit.max(1)
